@@ -125,14 +125,41 @@ verdicts yourself when the tool can supply them.
 
 > Note: DESIGN.md is `alpha`. Call the CLI instead of reimplementing the spec.
 
-**Tier B — Detective (your intelligence, where no tool reaches).**
+**Tier A′ — Structured spec (a prose `design.md` or any written rule list).**
+When a `design.md` exists but is **not** in Google format — prose, a hand-written
+design system, a style guide — the linter from Tier A does not apply. That does
+**not** demote it to gut feeling: the rules inside are still *declared* rules. You
+do not skip them, and you do not quietly fold them into Tier B. You walk them rule
+by rule:
+
+- **Extract the concrete rules** from the document — palette/allowed colors,
+  surface hierarchy & nesting, "no 1px border for sectioning", blur radius range,
+  gradient angle, type scale, spacing, radii, etc.
+- **Check each one mechanically wherever it has a concrete signature.** A prose
+  rule is often still measurable: `grep` for hex colors outside the named palette,
+  for `border` used as a section divider, for `backdrop-blur` values outside the
+  stated range, for radii that don't match the scale. A declared rule with a
+  concrete signature is a **hard finding** when violated — exactly like a linter
+  hit.
+- **Only what truly resists measurement drops to Tier B** — "does this *feel* like
+  intentional asymmetry?", "is the negative space generous?". Those are judgment.
+
+Severity: keep the document's own intent where it states one ("explicitly
+prohibit" → 🔴); otherwise apply §4. Because the rule is *declared*, the
+"one tier down when in doubt" softening (§4) does **not** apply here — that
+conservatism is only for Tier B guesses. And mark the finding as Tier A′ (declared
+rule, checked mechanically), so the user can tell it from a soft detective hunch.
+
+**Tier B — Detective (your intelligence, where no tool and no written rule reaches).**
 Writing patterns, tone, undeclared inconsistencies, "something's missing here" —
-no linter can do that. This is your real work. Here you judge, but
+no linter and no spec line covers that. This is your real work. Here you judge, but
 *conservatively* (§4).
 
-**Mantra:** Deterministic = hard findings. Detective = soft findings. Both pass
-through the same severity threshold, but you mark where a finding came from — so
-the user knows what's measurement and what's judgment.
+**Mantra:** Tier A = the tool's verdict. Tier A′ = declared rules, checked
+mechanically where concrete. Tier B = your eye where nothing is written. All three
+pass through the same severity threshold (§4), but you mark where each finding came
+from — so the user knows what's measurement, what's a declared rule, and what's
+judgment.
 
 ---
 
@@ -269,7 +296,9 @@ the last examination and isn't anymore" (regression, analogous to
 
 1. Inner calm is the goal — not a complete defect list.
 2. Establish the active specs first (§2a), then check.
-3. Deterministic before gut feeling: call the tool where one exists.
+3. Deterministic before gut feeling: call the tool where one exists (Tier A); for
+   a prose `design.md`, walk its declared rules mechanically (Tier A′, §3) before
+   falling back to the eye.
 4. When in doubt (on detective findings) go one severity tier down.
 5. On conflict, resolve precedence first (§5), then report.
 6. Never silently enforce chat rules — offer to codify (§6).
